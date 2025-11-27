@@ -27,3 +27,9 @@ class ScenarioParameterInitError(Exception):
     Exception raised when there is an error initializing a scenario parameter.
     """
     pass
+
+class UniqueScenariosError(Exception):
+    """
+    Exception raised when there are no unique scenarios found.
+    """
+    pass
