@@ -47,9 +47,14 @@ class NodeIOHogScenario(Scenario):
 
         if len(nodes) == 0:
             raise ScenarioParameterInitError("No nodes found in cluster components for node-io-hog scenario")
+        
+        all_labels = Counter()
+        for node in nodes:
+            for label, value in node.labels.items():
+                all_labels[f"{label}={value}"] += 1
 
         # scenario 1: Select a random node
-        if rng.random() < 0.5:
+        if rng.random() < 0.5 or len(all_labels) == 0:
             node = rng.choice(nodes)
             self.node_selector.value = f"kubernetes.io/hostname={node.name}"
             self.number_of_nodes.value = 1
@@ -57,14 +62,6 @@ class NodeIOHogScenario(Scenario):
             self.taint.value = json.dumps(node.taints) if node.taints else '[]'
         else:
             # scenario 2: Select a label
-            all_labels = Counter()
-            for node in nodes:
-                for label, value in node.labels.items():
-                    all_labels[f"{label}={value}"] += 1
-
-            if len(all_labels) == 0:
-                raise ScenarioParameterInitError("No node labels found in cluster components for node-io-hog scenario")
-
             label = rng.choice(list(all_labels.keys()))
             self.node_selector.value = label
             self.number_of_nodes.value = rng.randint(1, all_labels[label])
