@@ -22,6 +22,20 @@ RUN wget -qO- https://astral.sh/uv/install.sh | sh \
     && mv /root/.local/bin/uv /usr/local/bin/uv \
     && mv /root/.local/bin/uvx /usr/local/bin/uvx
 
+# Install kubectl
+ARG KUBECTL_VERSION=v1.31.4
+RUN wget -q https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
+    && mv kubectl /usr/local/bin/kubectl \
+    && chmod +x /usr/local/bin/kubectl
+
+# Install OpenShift client (oc)
+ARG OC_VERSION=4.20.0
+RUN wget -q https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OC_VERSION}/openshift-client-linux.tar.gz \
+    && tar -xzf openshift-client-linux.tar.gz \
+    && mv oc /usr/local/bin/oc \
+    && chmod +x /usr/local/bin/oc \
+    && rm -f openshift-client-linux.tar.gz
+
 # Install krknctl
 ARG KRKNCTL_VERSION=v0.10.15-beta
 RUN wget -q https://github.com/krkn-chaos/krknctl/releases/download/${KRKNCTL_VERSION}/krknctl-${KRKNCTL_VERSION}-linux-amd64.tar.gz \

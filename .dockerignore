@@ -102,3 +102,4 @@ CONTAINER_USAGE.md
 Jenkinsfile
 azure-pipelines.yml
 
+tests/
