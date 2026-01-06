@@ -156,7 +156,7 @@ class ElasticConfig(BaseModel):
     server: str = ""  # Elasticsearch URL (e.g., https://elasticsearch.example.com)
     port: int = 9200  # Elasticsearch port
     username: str = ""  # Elasticsearch username
-    password: str = Field(exclude=True)  # Elasticsearch password
+    password: str = Field(exclude=True, default="")  # Elasticsearch password
     index: str = "krkn-ai-metrics"  # Index name for storing Krkn-AI results
     verify_certs: bool = True  # Verify SSL certificates
 
