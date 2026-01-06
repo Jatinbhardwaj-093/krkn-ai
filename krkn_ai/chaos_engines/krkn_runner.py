@@ -161,6 +161,7 @@ class KrknRunner:
                 fitness_result.health_check_response_time_score = health_check_watcher.summarize_response_time(health_check_results)
 
             # Calculate overall fitness score
+            logger.debug("Fitness result: %s", fitness_result)
             fitness_result.fitness_score = sum([
                 fitness_result.fitness_score,
                 fitness_result.krkn_failure_score,

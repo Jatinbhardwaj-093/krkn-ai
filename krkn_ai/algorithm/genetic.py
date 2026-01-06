@@ -66,6 +66,7 @@ class GeneticAlgorithm:
             self.config.population_size += 1
 
         self.save_config()
+        self.elastic_client.index_config(self.config, self.run_uuid)
 
         # For debugging configuration
         # logger.debug("CONFIG")
@@ -211,8 +212,7 @@ class GeneticAlgorithm:
         self.save_scenario_result(scenario_result)
         self.health_check_reporter.plot_report(scenario_result)
         self.health_check_reporter.write_fitness_result(scenario_result)
-        
-        # TODO: Send to Elasticsearch if enabled
+        self.elastic_client.index_run_result(scenario_result, self.run_uuid)
 
         return scenario_result
 
@@ -371,7 +371,7 @@ class GeneticAlgorithm:
         self.generations_reporter.save_best_generation_graph(self.best_of_generation)
         self.health_check_reporter.save_report(self.seen_population.values())
         self.health_check_reporter.sort_fitness_result_csv()
-        
+
         # TODO: Send run summary to Elasticsearch
         
 
