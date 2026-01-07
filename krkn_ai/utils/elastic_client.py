@@ -133,9 +133,10 @@ class ElasticSearchClient:
                 'end_time',
                 'fitness_result',
                 'health_check_results',
+                'run_uuid',
             }
         )
-        result_data['run_uuid'] = run_uuid  # Link to parent config for the test
+        result_data['krkn_ai_run_uuid'] = run_uuid  # Link to parent config for the test
         result_data['scenario'] = result.scenario.name
 
         status = self.client.upload_data_to_elasticsearch(item=result_data, index=INDEX_NAME)
