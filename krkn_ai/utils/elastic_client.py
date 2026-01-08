@@ -74,7 +74,7 @@ class ElasticSearchClient:
             True if successful, False otherwise
         """
 
-        if not self.config.enable:
+        if not self.config.enable or self.client is None:
             logger.debug("Elasticsearch indexing is disabled. Skipping indexing of test configuration info.")
             return False
 
@@ -116,7 +116,7 @@ class ElasticSearchClient:
             True if successful, False otherwise
         """
 
-        if not self.config.enable:
+        if not self.config.enable or self.client is None:
             logger.debug("Elasticsearch indexing is disabled. Skipping indexing of run result.")
             return False
 
