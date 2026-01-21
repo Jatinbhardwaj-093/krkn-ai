@@ -41,8 +41,9 @@ class NetworkScenario(Scenario):
         ]
 
     def mutate(self):
-        # Get nodes with interfaces
-        nodes = [node for node in self._cluster_components.nodes if len(node.interfaces) > 0]
+        # Get nodes with interfaces, excluding disabled nodes
+        nodes = [node for node in self._cluster_components.nodes 
+                 if not node.disable and len(node.interfaces) > 0]
 
         if len(nodes) == 0:
             raise ScenarioParameterInitError("No nodes found with interfaces in cluster components")

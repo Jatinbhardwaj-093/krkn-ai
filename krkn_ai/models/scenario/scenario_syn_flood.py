@@ -40,9 +40,11 @@ class SynFloodScenario(Scenario):
         ]
 
     def mutate(self):
+        # Filter out disabled namespaces
         namespace_candidates = [
             ns for ns in self._cluster_components.namespaces
-            if getattr(ns, "services", None)
+            if not ns.disable
+            and getattr(ns, "services", None)
             and any(service.ports for service in ns.services)
         ]
 

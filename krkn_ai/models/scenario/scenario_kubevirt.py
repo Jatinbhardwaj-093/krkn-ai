@@ -31,15 +31,19 @@ class KubevirtDisruptionScenario(Scenario):
         ]
 
     def mutate(self):
-
-        if len(self._cluster_components.namespaces) == 0:
+        # Filter out disabled namespaces
+        enabled_namespaces = [ns for ns in self._cluster_components.namespaces if not ns.disable]
+        
+        if len(enabled_namespaces) == 0:
             raise ScenarioParameterInitError("No namespaces found in cluster components")
         
         namespaces: List[Tuple[Namespace, VMI]] = []  # (namespace, vm)
         
-        for ns in self._cluster_components.namespaces:
-            if len(ns.vmis) > 0:
-                namespaces.extend((ns, vmi) for vmi in ns.vmis)
+        for ns in enabled_namespaces:
+            # Filter out disabled VMIs
+            enabled_vmis = [vmi for vmi in ns.vmis if not vmi.disable]
+            if len(enabled_vmis) > 0:
+                namespaces.extend((ns, vmi) for vmi in enabled_vmis)
 
         # Check availability before mutation - skip test if no vms found
         if not namespaces:

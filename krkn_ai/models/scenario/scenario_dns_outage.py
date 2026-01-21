@@ -35,8 +35,12 @@ class DnsOutageScenario(Scenario):
         ]
 
     def mutate(self):
+        # Filter out disabled namespaces and pods
         pods = [
-            (ns, pod) for ns in self._cluster_components.namespaces for pod in ns.pods
+            (ns, pod) for ns in self._cluster_components.namespaces 
+            if not ns.disable
+            for pod in ns.pods
+            if not pod.disable
         ]
 
         if len(pods) == 0:

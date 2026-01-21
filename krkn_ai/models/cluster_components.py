@@ -2,18 +2,25 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+
 class Container(BaseModel):
     name: str
+    disable: bool = False  # When True, exclude this container from chaos testing
+
 
 class Pod(BaseModel):
     name: str
     labels: Dict[str, str] = {}
     containers: List[Container] = []
+    disable: bool = False  # When True, exclude this pod from chaos testing
+
 
 class PVC(BaseModel):
     name: str
     labels: Dict[str, str] = {}
     current_usage_percentage: Optional[float] = None
+    disable: bool = False  # When True, exclude this PVC from chaos testing
+
 
 class ServicePort(BaseModel):
     port: int
@@ -29,6 +36,8 @@ class Service(BaseModel):
 
 class VMI(BaseModel):
     name: str
+    disable: bool = False  # When True, exclude this VMI from chaos testing
+
 
 class Namespace(BaseModel):
     name: str
@@ -36,6 +45,8 @@ class Namespace(BaseModel):
     services: List[Service] = []
     pvcs: List[PVC] = []
     vmis: List[VMI] = []
+    disable: bool = False  # When True, exclude this namespace from chaos testing
+
 
 class Node(BaseModel):
     name: str
@@ -44,6 +55,7 @@ class Node(BaseModel):
     free_mem: float = 0
     interfaces: List[str] = []
     taints: List[str] = []
+    disable: bool = False  # When True, exclude this node from chaos testing
 
 
 class ClusterComponents(BaseModel):

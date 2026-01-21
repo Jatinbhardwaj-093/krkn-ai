@@ -30,18 +30,27 @@ class TimeScenario(Scenario):
         ]
 
     def mutate(self):
-        # Pre-check if data is available for scenario
-        namespace = rng.choice([
-            namespace for namespace in self._cluster_components.namespaces 
-            if len(namespace.pods) > 0
-        ])
+        # Pre-check if data is available for scenario, excluding disabled namespaces
+        enabled_namespaces = [
+            ns for ns in self._cluster_components.namespaces 
+            if not ns.disable and len([p for p in ns.pods if not p.disable]) > 0
+        ]
+        
+        if len(enabled_namespaces) == 0:
+            raise ScenarioParameterInitError("No enabled namespaces with pods found in cluster components")
+        
+        namespace = rng.choice(enabled_namespaces)
         all_pod_labels = set()
         for p in namespace.pods:
+            if p.disable:
+                continue
             for label, value in p.labels.items():
                 all_pod_labels.add(f"{label}={value}")
 
         all_node_labels = set()
         for n in self._cluster_components.nodes:
+            if n.disable:
+                continue
             for label, value in n.labels.items():
                 all_node_labels.add(f"{label}={value}")
 
