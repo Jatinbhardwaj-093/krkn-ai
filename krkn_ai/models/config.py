@@ -189,6 +189,26 @@ class AdaptiveMutation(BaseModel):
     generations: int = 5
 
 
+class StoppingCriteria(BaseModel):
+    """
+    Configuration for stopping criteria that control when the genetic algorithm terminates.
+    
+    Multiple criteria can be set simultaneously - the algorithm stops when ANY criterion is met.
+    
+    Attributes:
+        fitness_threshold: Stop when best fitness score reaches or exceeds this value.
+            Set to None to disable this criterion.
+        generation_saturation: Stop if the best fitness score does not improve for this
+            many consecutive generations. Set to None to disable this criterion.
+        exploration_saturation: Stop if no new unique scenarios are discovered for this
+            many consecutive generations (limit of exploration reached).
+            Set to None to disable this criterion.
+    """
+    fitness_threshold: Optional[float] = None  # Stop when fitness score >= threshold
+    generation_saturation: Optional[int] = None  # Stop if no improvement for N generations
+    exploration_saturation: Optional[int] = None  # Stop if no new scenarios for N generations
+
+
 class ConfigFile(BaseModel):
     kubeconfig_file_path: str  # Path to kubeconfig
     parameters: Dict[str, str] = {}
@@ -239,3 +259,5 @@ class ConfigFile(BaseModel):
     cluster_components: ClusterComponents
 
     adaptive_mutation: AdaptiveMutation = AdaptiveMutation()
+
+    stopping_criteria: StoppingCriteria = StoppingCriteria()  # Additional stopping criteria for the algorithm
