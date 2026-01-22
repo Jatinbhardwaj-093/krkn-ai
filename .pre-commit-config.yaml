@@ -23,6 +23,7 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
       - id: check-yaml
+        exclude: ^scripts/monitoring/.*\.yaml$
       - id: check-toml
       - id: check-json
       - id: check-added-large-files
