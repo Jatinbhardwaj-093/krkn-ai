@@ -77,7 +77,7 @@ class ScenarioFactory:
 
         # Get active components (filtered out disabled ones)
         active_components = config.cluster_components.get_active_components()
-        
+
         # Validate scenarios and find valid scenarios
         valid_scenarios = []
         for name, cls in candidates:

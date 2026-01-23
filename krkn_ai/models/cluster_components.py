@@ -7,7 +7,6 @@ class Container(BaseModel):
     disabled: bool = False
 
 
-
 class Pod(BaseModel):
     name: str
     labels: Dict[str, str] = {}
@@ -15,13 +14,11 @@ class Pod(BaseModel):
     disabled: bool = False
 
 
-
 class PVC(BaseModel):
     name: str
     labels: Dict[str, str] = {}
     current_usage_percentage: Optional[float] = None
     disabled: bool = False
-
 
 
 class ServicePort(BaseModel):
@@ -42,7 +39,6 @@ class VMI(BaseModel):
     disabled: bool = False
 
 
-
 class Namespace(BaseModel):
     name: str
     pods: List[Pod] = []
@@ -50,7 +46,6 @@ class Namespace(BaseModel):
     pvcs: List[PVC] = []
     vmis: List[VMI] = []
     disabled: bool = False
-
 
 
 class Node(BaseModel):
@@ -83,7 +78,7 @@ class ClusterComponents(BaseModel):
                 services=[s for s in ns.services if not s.disabled],
                 pvcs=[pvc for pvc in ns.pvcs if not pvc.disabled],
                 vmis=[vmi for vmi in ns.vmis if not vmi.disabled],
-                disabled=ns.disabled
+                disabled=ns.disabled,
             )
             active_namespaces.append(active_ns)
 
