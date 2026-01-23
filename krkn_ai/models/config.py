@@ -192,9 +192,9 @@ class AdaptiveMutation(BaseModel):
 class StoppingCriteria(BaseModel):
     """
     Configuration for stopping criteria that control when the genetic algorithm terminates.
-    
+
     Multiple criteria can be set simultaneously - the algorithm stops when ANY criterion is met.
-    
+
     Attributes:
         fitness_threshold: Stop when best fitness score reaches or exceeds this value.
             Set to None to disable this criterion.
@@ -204,15 +204,20 @@ class StoppingCriteria(BaseModel):
             many consecutive generations (limit of exploration reached).
             Set to None to disable this criterion.
     """
-    fitness_threshold: Optional[float] = None  # Stop when fitness score >= threshold
-    generation_saturation: Optional[int] = None  # Stop if no improvement for N generations
-    exploration_saturation: Optional[int] = None  # Stop if no new scenarios for N generations
 
-    @field_validator('generation_saturation', 'exploration_saturation', mode='after')
+    fitness_threshold: Optional[float] = None  # Stop when fitness score >= threshold
+    generation_saturation: Optional[int] = (
+        None  # Stop if no improvement for N generations
+    )
+    exploration_saturation: Optional[int] = (
+        None  # Stop if no new scenarios for N generations
+    )
+
+    @field_validator("generation_saturation", "exploration_saturation", mode="after")
     @classmethod
     def validate_positive_int(cls, value: Optional[int]) -> Optional[int]:
         if value is not None and value <= 0:
-            raise ValueError('Value must be a positive integer greater than 0')
+            raise ValueError("Value must be a positive integer greater than 0")
         return value
 
 
@@ -267,4 +272,6 @@ class ConfigFile(BaseModel):
 
     adaptive_mutation: AdaptiveMutation = AdaptiveMutation()
 
-    stopping_criteria: StoppingCriteria = StoppingCriteria()  # Additional stopping criteria for the algorithm
+    stopping_criteria: StoppingCriteria = (
+        StoppingCriteria()
+    )  # Additional stopping criteria for the algorithm

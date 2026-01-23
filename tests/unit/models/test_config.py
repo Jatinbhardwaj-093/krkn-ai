@@ -213,10 +213,7 @@ class TestStoppingCriteria:
 
     def test_stopping_criteria_with_all_fields(self):
         """Test StoppingCriteria with all fields set"""
-        criteria = StoppingCriteria(
-            fitness_threshold=200.0,
-            generation_saturation=10
-        )
+        criteria = StoppingCriteria(fitness_threshold=200.0, generation_saturation=10)
         assert criteria.fitness_threshold == 200.0
         assert criteria.generation_saturation == 10
 
@@ -228,9 +225,8 @@ class TestStoppingCriteria:
             fitness_function=FitnessFunction(query="test_query"),
             cluster_components=cluster,
             stopping_criteria=StoppingCriteria(
-                fitness_threshold=150.0,
-                generation_saturation=3
-            )
+                fitness_threshold=150.0, generation_saturation=3
+            ),
         )
         assert config.stopping_criteria.fitness_threshold == 150.0
         assert config.stopping_criteria.generation_saturation == 3
@@ -241,7 +237,7 @@ class TestStoppingCriteria:
         config = ConfigFile(
             kubeconfig_file_path="/path/to/kubeconfig",
             fitness_function=FitnessFunction(query="test_query"),
-            cluster_components=cluster
+            cluster_components=cluster,
         )
         assert isinstance(config.stopping_criteria, StoppingCriteria)
         assert config.stopping_criteria.fitness_threshold is None

@@ -51,9 +51,15 @@ class GeneticAlgorithm:
         self.format = format
 
         self.stagnant_generations = 0
-        self.saturation_stagnant_generations = 0  # Track stagnation for stopping criteria
-        self.exploration_stagnant_generations = 0  # Track generations with no new scenarios
-        self.new_scenarios_in_generation = 0  # Track new scenarios discovered in current generation
+        self.saturation_stagnant_generations = (
+            0  # Track stagnation for stopping criteria
+        )
+        self.exploration_stagnant_generations = (
+            0  # Track generations with no new scenarios
+        )
+        self.new_scenarios_in_generation = (
+            0  # Track new scenarios discovered in current generation
+        )
 
         self.valid_scenarios = ScenarioFactory.generate_valid_scenarios(
             self.config
@@ -111,7 +117,11 @@ class GeneticAlgorithm:
             should_stop, reason = self.should_stop(cur_generation, elapsed_time)
             if should_stop:
                 logger.info("Stopping algorithm: %s", reason)
-                logger.info("Completed %d generations in %s", cur_generation, format_duration(elapsed_time))
+                logger.info(
+                    "Completed %d generations in %s",
+                    cur_generation,
+                    format_duration(elapsed_time),
+                )
                 break
 
             # Log remaining time if duration is set
@@ -157,10 +167,16 @@ class GeneticAlgorithm:
 
             # Check stopping criteria after fitness evaluation (for fitness threshold, saturation, and exploration)
             elapsed_after_eval = time.time() - start_time
-            should_stop, reason = self.should_stop(cur_generation + 1, elapsed_after_eval)
+            should_stop, reason = self.should_stop(
+                cur_generation + 1, elapsed_after_eval
+            )
             if should_stop:
                 logger.info("Stopping algorithm: %s", reason)
-                logger.info("Completed %d generations in %s", cur_generation + 1, format_duration(elapsed_after_eval))
+                logger.info(
+                    "Completed %d generations in %s",
+                    cur_generation + 1,
+                    format_duration(elapsed_after_eval),
+                )
                 break
 
             self.adapt_mutation_rate()
@@ -244,16 +260,20 @@ class GeneticAlgorithm:
     def should_stop(self, cur_generation: int, elapsed_time: float) -> Tuple[bool, str]:
         """
         Evaluate all stopping criteria and determine if the algorithm should stop.
-        
+
         Args:
             cur_generation: Current generation number
             elapsed_time: Time elapsed since algorithm start (in seconds)
-            
+
         Returns:
             Tuple of (should_stop: bool, reason: str)
         """
         # Check generation limit if duration is not set
-        if self.config.duration is None and cur_generation >= self.config.generations:
+        if (
+            self.config.duration is None
+            and self.config.generations is not None
+            and cur_generation >= self.config.generations
+        ):
             return True, f"Completed {cur_generation} generations"
 
         # Check duration limit
@@ -284,56 +304,65 @@ class GeneticAlgorithm:
     def check_fitness_threshold(self) -> Tuple[bool, str]:
         """
         Check if the best fitness score has reached or exceeded the configured threshold.
-        
+
         Returns:
             Tuple of (should_stop: bool, reason: str)
         """
         threshold = self.config.stopping_criteria.fitness_threshold
-        
+
         if threshold is None or not self.best_of_generation:
             return False, ""
-        
+
         best_fitness = self.best_of_generation[-1].fitness_result.fitness_score
-        
+
         if best_fitness >= threshold:
-            return True, f"Fitness threshold reached (score: {best_fitness:.4f} >= threshold: {threshold})"
-        
+            return (
+                True,
+                f"Fitness threshold reached (score: {best_fitness:.4f} >= threshold: {threshold})",
+            )
+
         return False, ""
 
     def check_generation_saturation(self) -> Tuple[bool, str]:
         """
         Check if the fitness score has not improved for the configured number of generations.
         Note: This method only checks the counter value. Use update_saturation_tracking() to update it.
-        
+
         Returns:
             Tuple of (should_stop: bool, reason: str)
         """
         saturation_limit = self.config.stopping_criteria.generation_saturation
-        
+
         if saturation_limit is None:
             return False, ""
-        
+
         if self.saturation_stagnant_generations >= saturation_limit:
-            return True, f"Generation saturation reached (no improvement for {saturation_limit} generations)"
-        
+            return (
+                True,
+                f"Generation saturation reached (no improvement for {saturation_limit} generations)",
+            )
+
         return False, ""
 
     def check_exploration_limit(self) -> Tuple[bool, str]:
         """
         Check if no new unique scenarios have been discovered for the configured number of generations.
         This indicates that the exploration space has been exhausted.
-        
+
         Returns:
             Tuple of (should_stop: bool, reason: str)
         """
         exploration_limit = self.config.stopping_criteria.exploration_saturation
-        
+
         if exploration_limit is None:
             return False, ""
-        
+
         if self.exploration_stagnant_generations >= exploration_limit:
-            return True, f"Exploration limit reached (no new scenarios for {exploration_limit} generations)"
-        
+            return (
+                True,
+                f"Exploration limit reached (no new scenarios for {exploration_limit} generations)",
+            )
+
         return False, ""
 
     def update_saturation_tracking(self):
@@ -343,24 +372,26 @@ class GeneticAlgorithm:
         """
         if self.config.stopping_criteria.generation_saturation is None:
             return
-        
+
         if len(self.best_of_generation) < 2:
             return
-        
+
         prev_best = self.best_of_generation[-2].fitness_result.fitness_score
         curr_best = self.best_of_generation[-1].fitness_result.fitness_score
-        
+
         improvement = curr_best - prev_best
         if improvement <= 0.0001:  # No significant improvement
             self.saturation_stagnant_generations += 1
             logger.debug(
                 "No improvement in fitness score | stagnant_generations=%d/%s",
                 self.saturation_stagnant_generations,
-                self.config.stopping_criteria.generation_saturation
+                self.config.stopping_criteria.generation_saturation,
             )
         else:
             self.saturation_stagnant_generations = 0
-            logger.debug("Fitness improved by %.4f, resetting saturation counter", improvement)
+            logger.debug(
+                "Fitness improved by %.4f, resetting saturation counter", improvement
+            )
 
     def update_exploration_tracking(self):
         """
@@ -369,21 +400,21 @@ class GeneticAlgorithm:
         """
         if self.config.stopping_criteria.exploration_saturation is None:
             return
-        
+
         if self.new_scenarios_in_generation == 0:
             self.exploration_stagnant_generations += 1
             logger.debug(
                 "No new scenarios discovered | stagnant_generations=%d/%s",
                 self.exploration_stagnant_generations,
-                self.config.stopping_criteria.exploration_saturation
+                self.config.stopping_criteria.exploration_saturation,
             )
         else:
             self.exploration_stagnant_generations = 0
             logger.debug(
                 "Discovered %d new scenarios, resetting exploration counter",
-                self.new_scenarios_in_generation
+                self.new_scenarios_in_generation,
             )
-        
+
         # Reset counter for next generation
         self.new_scenarios_in_generation = 0
 
@@ -440,10 +471,10 @@ class GeneticAlgorithm:
             result = copy.deepcopy(result)
             result.generation_id = generation_id
             return result
-        
+
         # This is a new scenario - track it for exploration limit
         self.new_scenarios_in_generation += 1
-        
+
         scenario_result = self.krkn_client.run(scenario, generation_id)
 
         # Add scenario to seen population
