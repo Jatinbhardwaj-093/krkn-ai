@@ -4,11 +4,11 @@ from setuptools import setup
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
 
-# The text of the README file
-DESCRIPTION = (HERE / "README.md").read_text()
+# The text of the README file (read as UTF-8 to avoid Windows encoding errors)
+DESCRIPTION = (HERE / "README.md").read_text(encoding="utf-8")
 
-# The text of the README file
-REQUIRE = (HERE / "requirements.txt").read_text()
+# The text of the requirements file
+REQUIRE = (HERE / "requirements.txt").read_text(encoding="utf-8")
 
 setup(
     name="krkn_ai",
