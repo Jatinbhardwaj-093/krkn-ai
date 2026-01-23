@@ -283,48 +283,41 @@ The current version of Krkn-AI leverages an [evolutionary algorithm](https://en.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Commit your changes and run the [static checks](#static-checks) (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## Static Checks
+### Static Checks
 
 Developers should run the project's static checks locally before committing. Below are recommended commands and notes for common environments (PowerShell / Bash).
 
-- Create and activate a virtual environment (example uses the repository `.venv`):
-
-```powershell
-# create a virtual env
-python -m venv .venv
-. .\.venv\Scripts\Activate.ps1
-# or on Linux/macOS
-# python3 -m venv .venv
-# source .venv/bin/activate
-```
 
 - Install tooling used for checks:
 
-```powershell
-pip install -r requirements.txt
-pip install pre-commit ruff mypy
+```bash
+# Activate Virtual Environment
+source .venv/bin/activate
+
+# Install dev requirement
+uv pip install -r requirements-dev.txt
 ```
 
 - Install Git hooks (runs once per developer):
 
-```powershell
+```bash
 pre-commit install
 pre-commit autoupdate
 ```
 
 - Run all pre-commit hooks against the repository (fast, recommended):
 
-```powershell
+```bash
 pre-commit run --all-files
 ```
 
 - Run individual tools directly:
 
-```powershell
+```bash
 # Ruff (linter/formatter)
 ruff check .
 ruff format .

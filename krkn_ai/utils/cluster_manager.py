@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, Union
 from krkn_lib.k8s.krkn_kubernetes import KrknKubernetes
 from kubernetes.client.models import V1PodSpec
 from krkn_ai.utils import run_shell
@@ -73,7 +73,7 @@ class ClusterManager:
     def list_pods(
         self,
         namespace: Namespace,
-        pod_labels_patterns: str | List[str] | None = None,
+        pod_labels_patterns: Union[str, List[str], None] = None,
         skip_pod_name_patterns: List[str] = [],
     ) -> List[Pod]:
         pod_labels_patterns = self.__process_pattern(pod_labels_patterns)
@@ -203,7 +203,9 @@ class ClusterManager:
             logger.warning("Unable to find VMIs in namespace %s", namespace.name)
             return []
 
-    def list_nodes(self, node_label_pattern: str | None = None) -> List[Node]:
+    def list_nodes(
+        self, node_label_pattern: Union[str, List[str], None] = None
+    ) -> List[Node]:
         node_label_patterns = list(
             set(self.__process_pattern(node_label_pattern) + ["kubernetes.io/hostname"])
         )
@@ -288,7 +290,7 @@ class ClusterManager:
         return interfaces
 
     def __process_pattern(
-        self, pattern_string: str | List[str] | None = None
+        self, pattern_string: Union[str, List[str], None] = None
     ) -> List[str]:
         # Used for handling skip_pod_name pattern None
         if pattern_string is None:
