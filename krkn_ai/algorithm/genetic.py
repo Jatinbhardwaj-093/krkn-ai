@@ -742,4 +742,3 @@ class GeneticAlgorithm:
             if isinstance(param, param_type):
                 param.value = value
                 return
-            
