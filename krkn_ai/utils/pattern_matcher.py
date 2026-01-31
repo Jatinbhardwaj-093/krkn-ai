@@ -68,17 +68,17 @@ class PatternMatcher:
         """
         # Handle list input (pass through)
         if isinstance(pattern_string, list):
-            include = []
-            exclude = []
+            list_include: List[re.Pattern] = []
+            list_exclude: List[re.Pattern] = []
             for pat in pattern_string:
                 if pat.startswith("!"):
                     actual = pat[1:]
                     if actual:
-                        exclude.append(cls._compile_pattern(actual))
+                        list_exclude.append(cls._compile_pattern(actual))
                 else:
-                    include.append(cls._compile_pattern(pat))
-            match_all = len(include) == 0 and len(exclude) > 0
-            return cls(include, exclude, match_all=match_all)
+                    list_include.append(cls._compile_pattern(pat))
+            list_match_all = len(list_include) == 0 and len(list_exclude) > 0
+            return cls(list_include, list_exclude, match_all=list_match_all)
 
         # Handle None or empty string
         if pattern_string is None or pattern_string.strip() == "":
@@ -232,7 +232,7 @@ class PatternMatcher:
         Returns:
             List of error messages (empty if valid)
         """
-        errors = []
+        errors: List[str] = []
         if not pattern_string or pattern_string.strip() in ("", "*"):
             return errors
 
