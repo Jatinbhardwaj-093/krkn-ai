@@ -1,5 +1,6 @@
 import os
 import copy
+import datetime
 import json
 import time
 import uuid
@@ -20,6 +21,7 @@ from krkn_ai.models.scenario.factory import ScenarioFactory
 from krkn_ai.models.config import ConfigFile
 from krkn_ai.reporter.generations_reporter import GenerationsReporter
 from krkn_ai.reporter.health_check_reporter import HealthCheckReporter
+from krkn_ai.reporter.json_summary_reporter import JSONSummaryReporter
 from krkn_ai.utils.logger import get_logger
 from krkn_ai.chaos_engines.krkn_runner import KrknRunner
 from krkn_ai.utils.rng import rng
@@ -42,13 +44,21 @@ class GeneticAlgorithm:
         format: str,
         runner_type: KrknRunnerType = None,
     ):
+        self.output_dir = output_dir
+        self.config = config
+        self.format = format
+
+        # Initialize RNG with seed for reproducibility
+        rng.set_seed(self.config.seed)
+        if self.config.seed is not None:
+            logger.info("Random seed: %s (reproducible mode)", self.config.seed)
+        else:
+            logger.info("Random seed: None (non-reproducible mode)")
+
         self.krkn_client = KrknRunner(
             config, output_dir=output_dir, runner_type=runner_type
         )
-        self.output_dir = output_dir
-        self.config = config
         self.population: List[BaseScenario] = []
-        self.format = format
 
         self.stagnant_generations = 0
         self.saturation_stagnant_generations = (
@@ -82,6 +92,12 @@ class GeneticAlgorithm:
         self.run_uuid = str(uuid.uuid4())
         logger.info("Krkn-AI run UUID: %s", self.run_uuid)
 
+        # Track run metadata for results summary
+        self.start_time: Optional[datetime.datetime] = None
+        self.end_time: Optional[datetime.datetime] = None
+        self.seed: Optional[int] = None  # Seed can be set externally if needed
+        self.completed_generations: int = 0
+
         if self.config.population_size < 2:
             raise PopulationSizeError("Population size should be at least 2")
 
@@ -106,6 +122,7 @@ class GeneticAlgorithm:
         self.population = self.create_population(self.config.population_size)
 
         # Variables to track the progress of the algorithm
+        self.start_time = datetime.datetime.now(datetime.timezone.utc)
         start_time = time.time()
         cur_generation = 0
 
@@ -122,6 +139,8 @@ class GeneticAlgorithm:
                     cur_generation,
                     format_duration(elapsed_time),
                 )
+                self.completed_generations = cur_generation
+                self.end_time = datetime.datetime.now(datetime.timezone.utc)
                 break
 
             # Log remaining time if duration is set
@@ -671,11 +690,23 @@ class GeneticAlgorithm:
 
     def save(self):
         """Save run results"""
-        # TODO: Create a single result file (results.json) that contains summary of all the results
         self.generations_reporter.save_best_generations(self.best_of_generation)
         self.generations_reporter.save_best_generation_graph(self.best_of_generation)
         self.health_check_reporter.save_report(self.seen_population.values())
         self.health_check_reporter.sort_fitness_result_csv()
+
+        # Generate and save unified results summary
+        summary_reporter = JSONSummaryReporter(
+            run_uuid=self.run_uuid,
+            config=self.config,
+            seen_population=self.seen_population,
+            best_of_generation=self.best_of_generation,
+            start_time=self.start_time,
+            end_time=self.end_time,
+            completed_generations=self.completed_generations,
+            seed=self.seed,
+        )
+        summary_reporter.save(self.output_dir)
 
         # TODO: Send run summary to Elasticsearch
 
